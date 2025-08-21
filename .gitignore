@@ -1,0 +1,64 @@
+# Arquivos de configuração de IDEs e editores
+.vscode/
+.idea/
+
+# Arquivos gerados pelo Sistema Operacional
+.DS_Store
+*.swo
+*~
+
+
+# =================================================================
+# Backend (Python/FastAPI)
+# =================================================================
+# Ambientes Virtuais
+backend/venv/
+backend/.venv/
+backend/env/
+
+# Arquivos de Cache do Python
+backend/**/__pycache__/
+backend/.ruff_cache
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivo de Variáveis de Ambiente do Backend
+# NUNCA envie chaves de API ou segredos para o repositório!
+backend/.env
+
+# Pasta de uploads temporários
+# Ignora todo o conteúdo, mas permite que a pasta seja rastreada com um .gitkeep
+backend/temp_data/*
+!backend/temp_data/.gitkeep
+
+# Arquivos de Teste
+backend/.pytest_cache/
+backend/.coverage
+
+# Arquivos de log (se gerados no backend)
+backend/*.log
+
+
+# =================================================================
+# Frontend (React)
+# =================================================================
+# Dependências do Node.js
+frontend/node_modules/
+
+# Pasta de Build de produção
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# Arquivos de Log do Node.js
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Arquivos de Variáveis de Ambiente do Frontend
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
