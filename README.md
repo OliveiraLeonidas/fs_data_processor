@@ -23,7 +23,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 ## 📋 Características
 
 - **FastAPI** - Framework moderno e performático para APIs
-- **Poetry** - Gerenciamento de dependências e ambientes virtuais
+- **Pip3** - Gerenciamento de dependências e ambientes virtuais
 - **Ruff** - Linting e formatação de código ultrarrápida
 - **OpenAI Integration** - Integração com GPT para geração de scripts de limpeza
 - **Logging Estruturado** - Sistema de logs robusto
@@ -48,7 +48,7 @@ app/
 ### Pré-requisitos
 
 - Python 3.13+
-- Poetry
+- Pip3
 - Chave da API OpenAI | Google Gemini
 
 ### Instalação
@@ -64,14 +64,21 @@ app/
 
 ```bash
     cd backend && cp .env.example .env
-# Edite .env e adicione sua GEMINI_SECRET_KEY
+    # Edite .env e adicione sua GEMINI_SECRET_KEY
+```
+
+3. **Instale as dependências**
+
+```bash
+    pip3 install -r requirements.txt
 ```
 
 3. **Execute a aplicação**
 
 ```bash
-    poetry run task run
+    fastapi dev backend/main.py
 ```
+
 
 A API estará disponível em `http://localhost:8000/docs`
 
