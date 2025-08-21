@@ -24,11 +24,9 @@ backend/.ruff_cache
 *.pyd
 
 # Arquivo de Variáveis de Ambiente do Backend
-# NUNCA envie chaves de API ou segredos para o repositório!
 backend/.env
 
 # Pasta de uploads temporários
-# Ignora todo o conteúdo, mas permite que a pasta seja rastreada com um .gitkeep
 backend/temp_data/*
 !backend/temp_data/.gitkeep
 
@@ -36,8 +34,10 @@ backend/temp_data/*
 backend/.pytest_cache/
 backend/.coverage
 
-# Arquivos de log (se gerados no backend)
+# logs
 backend/*.log
+backend/upload/**
+backend/processed/**
 
 
 # =================================================================
