@@ -57,13 +57,13 @@ app/
 
 ```bash
     git clone https://github.com/OliveiraLeonidas/fs_data_processor.git
-    cd csv-processor-api
+    cd fs_data_processor/
 ```
 
 2. **Configure as variáveis de ambiente**
 
 ```bash
-    cp .env.example .env
+    cd backend && cp .env.example .env
 # Edite .env e adicione sua GEMINI_SECRET_KEY
 ```
 
