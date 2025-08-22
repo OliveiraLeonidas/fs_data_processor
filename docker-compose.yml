@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:14.2-alpine
+    container_name: ${DATAPROCESSOR_POSTGRES_HOST}
+    command: -p ${DATAPROCESSOR_POSTGRES_PORT}
+    env_file:
+      - .docker/.env
+    environment:
+      POSTGRES_ROOT_PASSWORD: "${DATAPROCESSOR_POSTGRES_ROOT_PASSWORD}"
+      POSTGRES_DB: "${DATAPROCESSOR_POSTGRES_DB}"
+      POSTGRES_USER: "${DATAPROCESSOR_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${DATAPROCESSOR_POSTGRES_PASSWORD}"
+    volumes:
+      - data-db:/var/lib/postgresql/data
+
+  backend:
+    image: data_processor_backend
+    container_name: backend
+    command: wait-for-it -t 60 ${DATAPROCESSOR_POSTGRES_HOST}:${DATAPROCESSOR_POSTGRES_PORT} -- fastapi dev --port ${DATAPROCESSOR_BACKEND_PORT} --host ${DATAPROCESSOR_BACKEND_HOST} backend/main.py
+    restart: unless-stopped
+    ports:
+      - "${DATAPROCESSOR_BACKEND_PORT}:${DATAPROCESSOR_BACKEND_PORT}"
+    tty: true
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+    env_file:
+      - .docker/.env
+    volumes:
+      - ./backend/:/code
+
+volumes:
+  data-db:

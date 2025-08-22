@@ -67,16 +67,16 @@ app/
     # Edite .env e adicione sua GEMINI_SECRET_KEY
 ```
 
-3. **Instale as dependências**
+3. **Prepare as imagens docker**
 
 ```bash
-    pip3 install -r requirements.txt
+    bash run.sh --build
 ```
 
 3. **Execute a aplicação**
 
 ```bash
-    fastapi dev backend/main.py
+    bash runs.sh --run
 ```
 
 
