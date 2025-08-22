@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 import aiofiles
 import uuid
+from backend.core.settings import settings
 from backend.core.logging import setup_logging
 from backend.models.schemas import (
     DataSummarySchema,
@@ -16,14 +17,12 @@ from fastapi.responses import JSONResponse
 
 log = setup_logging("CSVService.py")
 
-
 class CSVService:
-    def __init__(self, UPLOAD_DIR: str, PROCESSED_DIR: str) -> None:
-        self.upload_dir = Path(UPLOAD_DIR)
-        self.processed_dir = Path(PROCESSED_DIR)
-
-        self.upload_dir.mkdir(parents=True, exist_ok=True)
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self) -> None:
+        log.info(f"Inicialize CSV Service")
+        self.upload_dir = settings.UPLOAD_DIR
+        self.processed_dir = settings.PROCESSED_DIR
+        log.info(f"CSV Service has been initialized")
 
     async def save_uploaded_file(self, file: UploadFile) -> FileInfoSchema:
         try:
@@ -200,3 +199,5 @@ class CSVService:
 
         except Exception as e:
             log.error(e, f"cleanup_files - file_id: {file_id}")
+
+csv_service = CSVService()

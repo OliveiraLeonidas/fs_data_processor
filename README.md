@@ -17,7 +17,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 | **Frontend**           | [Next.js](https://nextjs.org/), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)         |
 | **UI & Estilização**   | [Shadcn/UI](https://ui.shadcn.com/), [Tailwind CSS v4](https://tailwindcss.com/blog/tailwindcss-v4-alpha)          |
 | **Backend**            | [Python](https://www.python.org/), [FastAPI](https://fastapi.tiangolo.com/)                                        |
-| **Gerenciamento (BE)** | [Poetry](https://python-poetry.org/) para dependências, [Taskipy](https://github.com/taskipy/taskipy) para scripts |
+| **Gerenciamento (BE)** | [Pip](https://pypi.org/project/pip/) |
 | **Integração IA**      | [Google Generative AI](https://ai.google.dev/) (ou OpenAI)                                                         |
 
 ## 📋 Características
@@ -30,17 +30,22 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 
 ## 🏗️ Arquitetura
 
-```
-app/
-├── api/
-│   └── routes.py
-├── core/
-│   └── logging.py
-├── models/
-│   └── schemas.py
-├── services/
-│   ├── csv_service.py
-└── main.py
+```bash
+    frontend/
+    backend/
+    ├── upload/
+    ├── processed/
+    ├── api/
+    │   └── routes.py
+    ├── core/
+    │   └── logging.py
+    │   └── settings.py
+    ├── models/
+    │   └── schemas.py
+    ├── services/
+    │   ├── csv_service.py
+    │   ├── llm_service.py
+    └── main.py
 ```
 
 ## 🚀 Início Rápido
@@ -53,32 +58,33 @@ app/
 
 ### Instalação
 
-1. **Clone o repositório**
+1.**Clone o repositório**
 
 ```bash
     git clone https://github.com/OliveiraLeonidas/fs_data_processor.git
     cd fs_data_processor/
 ```
 
-2. **Configure as variáveis de ambiente**
+2.**Configure as variáveis de ambiente**
 
 ```bash
     cd backend && cp .env.example .env
     # Edite .env e adicione sua GEMINI_SECRET_KEY
 ```
 
-3. **Instale as dependências**
+3.**Instale as dependências**
 
 ```bash
     pip3 install -r requirements.txt
 ```
 
-3. **Execute a aplicação**
+4.**Execute a aplicação**
+
+A execução pode ser feita tanto com `python` ou `python3`
 
 ```bash
-    fastapi dev backend/main.py
+    python3 -m fastapi dev backend/main.py
 ```
-
 
 A API estará disponível em `http://localhost:8000/docs`
 
@@ -115,23 +121,9 @@ file: arquivo.csv
 
 ### Comandos Disponíveis
 
-inicialmente rode `poetry shell`
-
 ```bash
-    poetry install
-    poetry run task run
-    poetry run task test
-    poetry run task lint
-    poetry run task format
+    python3 -m fastapi dev backend/main.py
 ```
-
-### Estrutura de Qualidade de Código
-
-O projeto utiliza as seguintes ferramentas para garantir qualidade:
-
-- **Ruff** - Linting e formatação rápida
-- **Taskipy** - Atalhos para comandos
-- **Pytest** - Framework de testes
 
 ## 🔒 Segurança
 
@@ -165,7 +157,7 @@ A aplicação implementa várias camadas de segurança:
 
 ## 🧪 Exemplo de Uso
 
-1. **Faça upload de um CSV**
+### 1. **Faça upload de um CSV**
 
 ```bash
     curl -X POST "http://localhost:8000/api/v1/upload" \
@@ -173,19 +165,19 @@ A aplicação implementa várias camadas de segurança:
         -F "file=@exemplo.csv"
 ```
 
-2. **Processe com LLM**
+### 2. **Processe com LLM**
 
 ```bash
     curl -X POST "http://localhost:8000/api/v1/process?file_id=123e4567-e89b-12d3-a456-426614174000"
 ```
 
-3. **Execute o script**
+### 3. **Execute o script**
 
 ```bash
    curl -X POST "http://localhost:8000/api/v1/execute?file_id=123e4567-e89b-12d3-a456-426614174000"
 ```
 
-4. **Obtenha o resultado**
+### 4. **Obtenha o resultado**
 
 ```bash
    curl -X GET "http://localhost:8000/api/v1/result/123e4567-e89b-12d3-a456-426614174000"
@@ -214,4 +206,4 @@ Para dúvidas ou problemas:
 
 ---
 
-**Author: Leonidas Oliveira**
+### **Author: Leonidas Oliveira**

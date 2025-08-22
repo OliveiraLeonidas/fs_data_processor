@@ -1,20 +1,29 @@
 from datetime import datetime
+import logging
 from pathlib import Path
 from typing import Dict, Union
 
 from backend.services.csv_service import CSVService
 from fastapi import APIRouter, FastAPI, File, HTTPException, status, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes import router
 
 from backend.core.logging import setup_logging
+from backend.core.settings import settings
 from backend.models.schemas import ErrorResponseSchema, UploadResponseSchema
 
-app = FastAPI(title="Data Processor - Cleaning CSV Data with LLM")
+app = FastAPI(title=settings.PROJECT_NAME, description="API to process csv files using LLM", version="1.0.0")
 
-
-log = setup_logging("main.py")
+log = setup_logging("backend.main")
 
 app.include_router(router=router, prefix="/api/v1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 @app.get("/")
@@ -24,4 +33,6 @@ async def health_check() -> dict[str, str]:
 
 @app.get("/tests")
 async def testing() -> dict[str, str]:
+
+
     return "teste"

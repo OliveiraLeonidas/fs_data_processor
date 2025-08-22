@@ -77,6 +77,8 @@ class ResultResponseSchema(BaseResponseSchema):
 class LLMRequestSchema(BaseModel):
     data_summary: DataSummarySchema
 
+class LLMTestRequest(BaseModel):
+    content: str
 
 class LLMResponseSchema(BaseModel):
     script: str = Field(..., description="Script Python gerado")

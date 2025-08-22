@@ -1,20 +1,24 @@
 from datetime import datetime
+import logging
 from typing import Dict, Union
 
-from backend.services.csv_service import CSVService
-from fastapi import APIRouter, FastAPI, File, HTTPException, status, UploadFile
+from fastapi.responses import JSONResponse, PlainTextResponse
 
-from backend.core.logging import setup_logging
-from backend.models.schemas import ErrorResponseSchema, UploadResponseSchema
+from backend.services.csv_service import CSVService, csv_service
+from backend.services.llm_service import LLMService, llm_service
+from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, status, UploadFile
+
+from backend.core.logging import log_request, setup_logging
+from backend.models.schemas import ErrorResponseSchema, LLMTestRequest, UploadResponseSchema
 
 router = APIRouter()
+log = setup_logging("backend.route")
 
-log = setup_logging("routes.py")
+def get_csv_service() -> CSVService:
+    return csv_service
 
-FILE_UPLOAD_FOLDER: str = "upload"
-PROCESSED_FOLDER: str = "processed"
-
-csv_service = CSVService(str(FILE_UPLOAD_FOLDER), str(PROCESSED_FOLDER))
+def get_llm_service() -> LLMService:
+    return llm_service
 
 
 @router.post(
@@ -26,13 +30,15 @@ csv_service = CSVService(str(FILE_UPLOAD_FOLDER), str(PROCESSED_FOLDER))
         422: {"model": ErrorResponseSchema},
     },
 )
-async def upload(file: UploadFile = File(...)):
-    log.info(f"POST /upload - upload file {file.filename} - size: {str(file.size)}")
+async def upload(file: UploadFile = File(...), csv_service: CSVService = Depends(get_csv_service)):
+    log_request("POST /upload", filename=file.filename, size=file.size)
 
     try:
         file_info = await csv_service.save_uploaded_file(file)
+        log.info(f"File {file.filename} salved successfully: {file_info.file_id}")
 
-        log.info(f"File {file.filename} salved sucessfully: {file_info.file_id}")
+
+
 
         return UploadResponseSchema(
             filename=f"file: {file.filename} - id: {file_info.file_id}",
@@ -52,3 +58,26 @@ async def upload(file: UploadFile = File(...)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Sorry, internal server error",
         )
+
+
+@router.post("/process")
+def process(
+    content: LLMTestRequest, 
+    file_id: str, 
+    csv_service: CSVService = Depends(get_csv_service), 
+    llm_service: LLMService = Depends(get_llm_service)):
+    print(content)
+    log.info(f"POST /process - processing file {file_id} - size:")
+
+
+
+    llm_service.initialize_gemini()
+    system = llm_service.get_system_prompt()
+    script_gerado = llm_service.send_gen_request(system, content.content)
+    
+    
+    print("--- RESPOSTA DA API ---")
+    print(PlainTextResponse(script_gerado, media_type="text/plain"))
+    print("-----------------------")
+    
+    return PlainTextResponse(script_gerado, media_type="text/plain")
