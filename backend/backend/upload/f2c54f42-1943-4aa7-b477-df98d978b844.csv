@@ -1,0 +1,11 @@
+id,nome,idade,email,data_cadastro,salario
+1.0,Ana,25,ana@email.com,2023-01-10,3000
+2.0,Bruno,30,bruno@email,2023/02/15,3500.50
+3.0,Carlos,,,15-03-2023,quatro mil
+4.0,ana,22,ana@email.com,2023-04-20,2800
+5.0,Beatriz,40,beatriz@,2023-05-05,
+6.0,Carlos ,30,carlos@email.com,20230510,3000
+7.0,  Daniel,27,daniel@email.com,2023-13-01,3200
+,Fernanda,35,fernanda@email.com,,3100
+9.0,João,trinta,joao@email.com,2023-08-30,4000
+10.0,Maria,29,maria@email,2023-09-31,3900

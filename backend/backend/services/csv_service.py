@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 
 log = setup_logging("CSVService.py")
 
+
 class CSVService:
     def __init__(self) -> None:
         log.info(f"Inicialize CSV Service")
@@ -34,7 +35,7 @@ class CSVService:
                 content = await file.read()
                 await buffer.write(content)
 
-            log.info(f"Arquivo salvo: {file_path}")
+            log.info(f"File salvo: {file_path}")
 
             df = await asyncio.get_event_loop().run_in_executor(
                 None, pd.read_csv, str(file_path)
@@ -50,7 +51,7 @@ class CSVService:
             )
 
         except pd.errors.EmptyDataError:
-            raise ValueError("Arquivo CSV está vazio")
+            raise ValueError("File CSV está vazio")
         except pd.errors.ParserError as e:
             raise ValueError(f"Erro ao analisar CSV: {str(e)}")
         except Exception as e:
@@ -70,7 +71,7 @@ class CSVService:
             file_path = self.upload_dir / f"{file_id}.csv"
 
             if not file_path.exists():
-                raise FileNotFoundError(f"Arquivo {file_id} não encontrado")
+                raise FileNotFoundError(f"File {file_id} not found")
 
             df = await asyncio.get_event_loop().run_in_executor(
                 None, pd.read_csv, str(file_path)
@@ -105,10 +106,12 @@ class CSVService:
         try:
             script_path = self.upload_dir / f"{file_id}_script.py"
 
+            script = self.format_script(script=script)
+
             async with aiofiles.open(script_path, "w", encoding="utf-8") as f:
                 await f.write(script)
 
-            log.info(f"Script salvo: {script_path}")
+            log.info(f"Script was salved in: {script_path}")
 
         except Exception as e:
             log.error(e, f"save_script - file_id: {file_id}")
@@ -149,7 +152,7 @@ class CSVService:
             processed_path = self.processed_dir / f"{file_id}_processed.csv"
 
             if not processed_path.exists():
-                raise FileNotFoundError(f"Arquivo processado {file_id} não encontrado")
+                raise FileNotFoundError(f"File processed {file_id} was not found")
 
             df = await asyncio.get_event_loop().run_in_executor(
                 None, pd.read_csv, str(processed_path)
@@ -172,7 +175,7 @@ class CSVService:
             file_path = self.upload_dir / f"{file_id}.csv"
 
             if not file_path.exists():
-                raise FileNotFoundError(f"Arquivo {file_id} não encontrado")
+                raise FileNotFoundError(f"File {file_id} not found")
 
             df = await asyncio.get_event_loop().run_in_executor(
                 None, pd.read_csv, str(file_path)
@@ -195,9 +198,18 @@ class CSVService:
             for file_path in files_to_remove:
                 if file_path.exists():
                     file_path.unlink()
-                    log.info(f"Arquivo removido: {file_path}")
+                    log.info(f"File removed: {file_path}")
 
         except Exception as e:
             log.error(e, f"cleanup_files - file_id: {file_id}")
+
+    def format_script(self, script: str):
+        if script.startswith("```python"):
+            script = script[9:]
+        if script.endswith("```"):
+            script = script[:-3]
+        script = script.strip()
+        return script
+
 
 csv_service = CSVService()

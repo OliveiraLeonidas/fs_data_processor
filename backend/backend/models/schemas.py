@@ -16,6 +16,7 @@ class UploadResponseSchema(BaseModel):
     filename: str
     status: bool
     message: str
+    file_id: Optional[str] = None
 
 
 class FileInfoSchema(BaseModel):
@@ -53,6 +54,10 @@ class ExecutionResultSchema(BaseModel):
     output: Optional[str] = None
     error_message: Optional[str] = None
     processed_rows: Optional[int] = None
+    processed_dataframe: Optional[Any] = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class ExecuteResponseSchema(BaseResponseSchema):
@@ -77,12 +82,14 @@ class ResultResponseSchema(BaseResponseSchema):
 class LLMRequestSchema(BaseModel):
     data_summary: DataSummarySchema
 
+
 class LLMTestRequest(BaseModel):
     content: str
 
+
 class LLMResponseSchema(BaseModel):
-    script: str = Field(..., description="Script Python gerado")
-    reasoning: Optional[str] = Field(None, description="Explicação do script")
+    script: str = Field(..., description="Python script generated")
+    reasoning: Optional[str] = Field(None, description="Script details")
 
 
 class ValidationErrorSchema(BaseModel):
