@@ -26,9 +26,3 @@ app.add_middleware(
 @app.get("/")
 async def health_check() -> dict[str, str]:
     return {"status": "healthy", "message": "CSV Processor API is running"}
-
-
-@app.get("/tests")
-async def testing() -> dict[str, str]:
-
-    return "teste"

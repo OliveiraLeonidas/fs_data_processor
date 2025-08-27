@@ -58,15 +58,15 @@ export function FileUpload({ onFileSelect, selectedFile, disabled }: FileUploadP
   };
 console.log(selectedFile)
   return (
-<Card className="w-full max-w-lg mx-auto">
+<Card className="w-full max-w-lg mx-auto bg-white dark:bg-slate-900">
       <CardContent className="p-6">
         {!selectedFile ? (
           <div
             className={cn(
               "relative border-2 border-dashed rounded-lg p-8 transition-colors text-center",
               isDragOver
-                ? "border-blue-500 bg-blue-500/5"
-                : "border-slate-300 hover:border-blue-500/50",
+                ? "border-slate-200 bg-slate-500/5"
+                : "border-slate-300 hover:border-slate-500/50",
               disabled && "opacity-50 cursor-not-allowed"
             )}
             onDragEnter={handleDragEnter}
@@ -83,30 +83,28 @@ console.log(selectedFile)
             />
             
             <div className="flex flex-col items-center justify-center space-y-4">
-              <Upload className={cn("h-12 w-12", isDragOver ? "text-blue-500" : "text-slate-400")} />
+              <Upload className={cn("h-12 w-12", isDragOver ? " dark:text-slate-200" : "dark:text-slate-200")} />
               <div className="space-y-2">
-                <p className="text-lg font-medium text-slate-800">
+                <p className="text-lg font-medium text-slate-600 dark:text-slate-200">
                   {isDragOver ? "Solte o arquivo aqui" : "Selecione um arquivo CSV"}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-200">
                   Arraste e solte ou clique para selecionar
                 </p>
               </div>
-              <Button type="button" variant="outline" disabled={disabled}>
+              <Button className='bg-primary' type="button" variant="default" disabled={disabled}>
                 Selecionar Arquivo
               </Button>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50">
+          <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50 dark:bg-slate-950">
             <div className="flex items-center space-x-3 min-w-0">
-              <File className="h-8 w-8 text-blue-600 flex-shrink-0" />
+              <File className="h-8 w-8 text-slate-800 dark:text-slate-200 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="font-medium text-sm truncate text-slate-800">{selectedFile.name}</p>
-                <p className="text-xs text-slate-500">
-                  {formatBytes(selectedFile.size)
-                
-                  }
+                <p className="font-medium text-sm truncate text-slate-800 dark:text-slate-200">{selectedFile.name}</p>
+                <p className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                  {formatBytes(selectedFile.size)}
                 </p>
               </div>
             </div>
@@ -116,6 +114,7 @@ console.log(selectedFile)
               onClick={handleRemoveFile}
               disabled={disabled}
               aria-label="Remover arquivo"
+              className='cursor-pointer'
             >
               <X className="h-4 w-4" />
             </Button>

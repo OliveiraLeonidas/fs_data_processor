@@ -2,6 +2,10 @@ import { APIError, UploadResponse } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
+interface healthCheck {
+  message: string
+}
+
 class APIClient {
   private baseUrl: string;
 
@@ -29,6 +33,14 @@ class APIClient {
     });
 
     return this.handleResponse<UploadResponse>(response);
+  }
+
+  async healthCheck() {
+      const response = await fetch(`${this.baseUrl}/`, {
+      method: 'GET',
+    });
+
+    return this.handleResponse<healthCheck>(response)
   }
 
 }
