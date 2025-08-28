@@ -25,6 +25,7 @@ backend/.ruff_cache
 
 # Arquivo de Variáveis de Ambiente do Backend
 backend/.env
+.docker/.env
 
 # Pasta de uploads temporários
 backend/temp_data/*

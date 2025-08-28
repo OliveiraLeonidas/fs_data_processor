@@ -72,10 +72,10 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
     # Edite .env e adicione sua GEMINI_SECRET_KEY
 ```
 
-3.**Instale as dependências**
+3. **Prepare as imagens docker**
 
 ```bash
-    pip3 install -r requirements.txt
+    bash run.sh --build
 ```
 
 4.**Execute a aplicação**
@@ -83,7 +83,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 A execução pode ser feita tanto com `python` ou `python3`
 
 ```bash
-    python3 -m fastapi dev backend/main.py
+    bash runs.sh --run
 ```
 
 A API estará disponível em `http://localhost:8000/docs`
