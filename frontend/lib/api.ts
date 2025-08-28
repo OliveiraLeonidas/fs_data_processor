@@ -1,4 +1,4 @@
-import { APIError, UploadResponse } from "@/types";
+import { APIError, StatusProcess, UploadResponse } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -23,6 +23,12 @@ class APIClient {
     return response.json();
   }
 
+  async getStatusProcess(fileId: string): Promise<StatusProcess>{
+    const response = await fetch(`${this.baseUrl}/api/v1/status/${fileId}`);
+
+    return this.handleResponse<StatusProcess>(response)
+  }
+
   async uploadFile(file: File): Promise<UploadResponse> {
      const formData = new FormData();
     formData.append('file', file);
@@ -31,6 +37,9 @@ class APIClient {
       method: 'POST',
       body: formData,
     });
+    console.time('upload_time')
+    console.log(response.formData.name)
+    console.timeEnd("upload_time")
 
     return this.handleResponse<UploadResponse>(response);
   }

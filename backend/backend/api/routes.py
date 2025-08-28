@@ -59,9 +59,9 @@ async def upload(
 
         return UploadResponseSchema(
             filename=f"file: {file.filename} - id: {file_info.file_id}",
+            file_id=file_info.file_id,
             status=True,
             message="FILE WAS UPLOADED SUCCESSFULLY",
-            file_id=file_info.file_id,
         )
 
     except ValueError as e:

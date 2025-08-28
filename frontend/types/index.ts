@@ -43,3 +43,11 @@ export interface ProcessingStep {
   status: 'pending' | 'processing' | 'completed' | 'error';
   description?: string;
 }
+
+export interface StatusProcess {
+  file_id: string;
+  uploaded: boolean;
+  processed_by_llm: boolean;
+  script_executed: boolean;
+  ready: boolean;
+}

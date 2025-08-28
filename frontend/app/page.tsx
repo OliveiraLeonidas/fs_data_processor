@@ -3,7 +3,6 @@ import { FileUpload } from "@/components/file-upload";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
-import { Hexagon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,19 +14,47 @@ export default function Home() {
 
   const handleFileChange = (selectedFile: File | null) => {
     setFile(selectedFile);
-    if (!selectedFile) {
+    
+    console.log("File info: "+file)
+    console.log("File selected: "+selectedFile)
+    
+    if (!selectedFile && file) {
+      console.log("Excluindo arquivo da lista")
       return
     }
+    
+    if (!selectedFile) {
+      toast.error(`Problem with the file you are trying to load`)
+      console.log("SelectedFile error")
+      return
+    }
+
+
+    
+    if (selectedFile && !selectedFile?.name.endsWith(".csv")) {
+      toast.error(`File must be a CSV file`)
+      setFile(null)
+      return
+    }
+    
     toast.success(`file ${selectedFile?.name.replace(".csv", "")} was loaded!`)
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) {
       toast.warning("Por favor, selecione um arquivo primeiro.");
       return;
     }
-
     setIsLoading(true);
+    const uploadResponse = await apiClient.uploadFile(file);
+
+    if (!uploadResponse) {
+      toast.error("Error when try to upload file")
+    }
+
+    toast.success(`File ${uploadResponse.filename} with id: ${uploadResponse.file_id}`)
+    setIsLoading(false)
+    setFile(null)
 
   };
 

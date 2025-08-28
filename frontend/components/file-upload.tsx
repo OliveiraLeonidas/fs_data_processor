@@ -56,7 +56,7 @@ export function FileUpload({ onFileSelect, selectedFile, disabled }: FileUploadP
   const handleRemoveFile = () => {
     onFileSelect(null as never);
   };
-console.log(selectedFile)
+  
   return (
 <Card className="w-full max-w-lg mx-auto bg-white dark:bg-slate-900">
       <CardContent className="p-6">
