@@ -83,10 +83,10 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 A execução pode ser feita tanto com `python` ou `python3`
 
 ```bash
-    bash runs.sh --run
+    bash run.sh --run
 ```
 
-A API estará disponível em `http://localhost:8000/docs`
+A API estará disponível em `http://localhost:8000/docs`, enquanto o frontend estará disponível em `http://localhost:8001`
 
 ## 📚 Endpoints da API
 
