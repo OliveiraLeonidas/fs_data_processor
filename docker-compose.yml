@@ -16,15 +16,33 @@ services:
   backend:
     image: data_processor_backend
     container_name: backend
-    command: wait-for-it -t 60 ${DATAPROCESSOR_POSTGRES_HOST}:${DATAPROCESSOR_POSTGRES_PORT} -- fastapi dev --port ${DATAPROCESSOR_BACKEND_PORT} --host ${DATAPROCESSOR_BACKEND_HOST} backend/main.py
+    command: wait-for-it -t 15 ${DATAPROCESSOR_POSTGRES_HOST}:${DATAPROCESSOR_POSTGRES_PORT} -- fastapi dev --port ${DATAPROCESSOR_BACKEND_PORT} --host ${DATAPROCESSOR_BACKEND_HOST} backend/main.py
     restart: unless-stopped
     ports:
       - "${DATAPROCESSOR_BACKEND_PORT}:${DATAPROCESSOR_BACKEND_PORT}"
     tty: true
+    depends_on:
+      - db
     deploy:
       resources:
         limits:
-          memory: 16G
+          memory: 4G
+    env_file:
+      - .docker/.env
+    volumes:
+      - ./backend/:/code
+
+  ui:
+    image: data_processor_frontend
+    container_name: frontend
+    command: wait-for-it -t 30 backend:${DATAPROCESSOR_BACKEND_PORT} -- yarn dev --port ${DATAPROCESSOR_FRONTEND_PORT}
+    restart: unless-stopped
+    ports:
+      - "${DATAPROCESSOR_FRONTEND_PORT}:${DATAPROCESSOR_FRONTEND_PORT}"
+    tty: true
+    depends_on:
+      - backend
+      - db
     env_file:
       - .docker/.env
     volumes:
