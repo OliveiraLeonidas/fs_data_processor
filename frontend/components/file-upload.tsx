@@ -1,18 +1,20 @@
 "use client"
 
 import React, { useCallback, useState } from 'react';
-import { Upload, File, X } from 'lucide-react';
+import { Upload, File, X, CheckCircle, Play, Bot, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn, formatBytes } from '@/lib/utils';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   selectedFile?: File | null;
   disabled?: boolean;
+  upload: () => void;
+  isUploading: boolean;
 }
 
-export function FileUpload({ onFileSelect, selectedFile, disabled }: FileUploadProps) {
+export function FileUpload({ onFileSelect, selectedFile, disabled, upload, isUploading}: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -58,8 +60,54 @@ export function FileUpload({ onFileSelect, selectedFile, disabled }: FileUploadP
   };
   
   return (
-<Card className="w-full max-w-lg mx-auto bg-white dark:bg-slate-900">
-      <CardContent className="p-6">
+<Card className="w-full">
+      <Card className='border-0 bg-transparent'>
+        <CardHeader>
+        <CardTitle className="text-lg">Como funciona?</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <FileText className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">1. Upload</p>
+              <p className="text-xs text-muted-foreground">Envie seu arquivo CSV</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Bot className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">2. IA Analisa</p>
+              <p className="text-xs text-muted-foreground">Inteligência artificial gera script de limpeza</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Play className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">3. Processa</p>
+              <p className="text-xs text-muted-foreground">Aplica correções automaticamente</p>
+            </div>
+          </div>
+          
+          <div className="flex items-start space-x-3">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <CheckCircle className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-sm">4. Download</p>
+              <p className="text-xs text-muted-foreground">Baixe os dados limpos</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <CardContent className="p-6 space-y-6">
         {!selectedFile ? (
           <div
             className={cn(
@@ -120,6 +168,14 @@ export function FileUpload({ onFileSelect, selectedFile, disabled }: FileUploadP
             </Button>
           </div>
         )}
+        <Button 
+          onClick={upload} 
+          disabled={!selectedFile || isUploading}
+          className="w-full cursor-pointer bg-primary"
+          size={"lg"} 
+        >
+        {isUploading ? "Enviando..." : "Enviar Arquivo"}
+        </Button>
       </CardContent>
     </Card>
   );

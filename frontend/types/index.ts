@@ -1,12 +1,9 @@
-
 export interface APIError {
   detail: string;
 }
 
 export interface UploadResponse {
   filename: string;
-  status: boolean;
-  message: string;
   file_id: string;
 }
 
@@ -29,19 +26,20 @@ export interface ProcessResponse {
   data_summary: DataSummary;
 }
 
+export interface ExecuteResponse {
+  file_id: string;
+  message: string;
+  execution_success: boolean;
+  execution_output?: string;
+  processed_rows?: number;
+}
+
 export interface ResultResponse {
   file_id: string;
   message: string;
   data: Record<string, unknown>[];
   columns: string[];
   rows_count: number;
-}
-
-export interface ProcessingStep {
-  id: string;
-  title: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
-  description?: string;
 }
 
 export interface StatusProcess {

@@ -1,4 +1,4 @@
-import { APIError, StatusProcess, UploadResponse } from "@/types";
+import { APIError, ExecuteResponse, ProcessResponse, ResultResponse, StatusProcess, UploadResponse } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -23,10 +23,26 @@ class APIClient {
     return response.json();
   }
 
+  async healthCheck() {
+      const response = await fetch(`${this.baseUrl}/`, {
+      method: 'GET',
+    });
+
+    return this.handleResponse<healthCheck>(response)
+  }
+
   async getStatusProcess(fileId: string): Promise<StatusProcess>{
     const response = await fetch(`${this.baseUrl}/api/v1/status/${fileId}`);
 
     return this.handleResponse<StatusProcess>(response)
+  }
+
+  async getScript(fileId: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/api/v1/script/${fileId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch script');
+    }
+    return await response.blob();
   }
 
   async uploadFile(file: File): Promise<UploadResponse> {
@@ -37,19 +53,41 @@ class APIClient {
       method: 'POST',
       body: formData,
     });
-    console.time('upload_time')
-    console.log(response.formData.name)
-    console.timeEnd("upload_time")
-
     return this.handleResponse<UploadResponse>(response);
-  }
+  } 
 
-  async healthCheck() {
-      const response = await fetch(`${this.baseUrl}/`, {
-      method: 'GET',
+  async processFile(fileId: string): Promise<ProcessResponse> {
+    const response = await fetch(`${this.baseUrl}/api/v1/process?file_id=${fileId}`, {
+      method: 'POST',      
     });
 
-    return this.handleResponse<healthCheck>(response)
+    return this.handleResponse<ProcessResponse>(response)
+  }
+
+  async executeScript(fileId: string): Promise<ExecuteResponse> {
+    const response = await fetch(`${this.baseUrl}/api/v1/execute?file_id=${fileId}`, {
+      method: 'POST',      
+    });
+
+    return this.handleResponse<ExecuteResponse>(response)
+  }
+  
+
+  async download(file_id: string) {
+    const response = await fetch(`${this.baseUrl}/api/v1/download/${file_id}`)
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch result');
+    }
+
+    const blob = await response.blob();
+    return blob;
+
+  }
+
+  async results(fileId: string): Promise<ResultResponse> {
+    const response = await fetch(`${this.baseUrl}/api/v1/result/${fileId}`);
+    return this.handleResponse<ResultResponse>(response);
   }
 
 }

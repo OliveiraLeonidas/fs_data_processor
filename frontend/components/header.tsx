@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 const Header = () => {
   const {theme, setTheme} = useTheme()
-  console.log("theme: " + theme)
+  
   const handleApiHealthCheck = () => {
     const response = apiClient.healthCheck()
     if (!response) return 
@@ -20,7 +20,7 @@ const Header = () => {
 
   return ( 
   
-    <header className="w-full flex items-center h-18 md:h-16 p-4 border-b">
+    <header className="w-full flex items-center h-18 md:h-16 p-4 mb-8 border-b shadow-sm shadow-slate-50/60">
       
      <div className="w-full h-full md:hidden">
        <Sheet>
