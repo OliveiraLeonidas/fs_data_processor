@@ -8,8 +8,6 @@ from backend.core.logging import setup_logging
 log = setup_logging("backend.llm_service")
 
 class Settings(BaseSettings):
-    
-    # Configurações da API
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Data Processor - Cleaning CSV Data with LLM"
     
@@ -42,7 +40,6 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
-    # execução de código
     EXECUTION_TIMEOUT: int = 30  # segundos
     MAX_SCRIPT_LENGTH: int = 10000  # caracteres
 
@@ -67,5 +64,4 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-# Instância global das configurações
 settings = Settings()

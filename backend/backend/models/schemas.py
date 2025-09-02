@@ -14,8 +14,6 @@ class UploadRequestSchema(BaseModel):
 
 class UploadResponseSchema(BaseModel):
     filename: str
-    status: bool
-    message: str
     file_id: Optional[str] = None
 
 

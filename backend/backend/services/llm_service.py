@@ -1,4 +1,3 @@
-import logging
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
 from backend.core.logging import setup_logging
@@ -36,7 +35,7 @@ class LLMService:
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 thinking_config=types.ThinkingConfig(
-                    thinking_budget=0  # Disables thinking
+                    thinking_budget=0  
                 ),
             ),
         )
@@ -58,12 +57,15 @@ class LLMService:
                 REGRAS IMPORTANTES:
                 1. O script deve assumir que existe uma variável 'df' já carregada com os dados
                 2. O script deve retornar o DataFrame limpo na variável 'df' (modificar in-place ou reatribuir)
-                3. Use apenas bibliotecas padrão: pandas, numpy, datetime, re
-                4. Não importe bibliotecas - assuma que pandas está disponível como 'pd'
-                5. Adicione comentários explicativos para cada operação
-                6. Trate erros com try/except quando necessário
-                7. Seja conservador - não remova dados desnecessariamente
-                8. Foque em problemas comuns: valores nulos, duplicatas, tipos de dados incorretos, formatação
+                3. Sempre devolva o cabeçalho do dataframe em português do Brasil (first_name = "nome")
+                4. Use apenas bibliotecas padrão: pandas, numpy, datetime, re
+                5. Não use métodos ou funções que podem sofrer mudanças de versão do pandas
+                6. Não importe bibliotecas - assuma que pandas está disponível como 'pd'
+                7. Adicione comentários explicativos para cada operação
+                8. Trate erros com try/except quando necessário
+                9. Seja conservador - não remova dados desnecessariamente
+                10. Foque em problemas comuns: valores nulos, duplicatas, tipos de dados incorretos, formatação
+                11. Foque na eficiência - evite loops desnecessários
 
                 Retorne APENAS o código Python, sem explicações adicionais antes ou depois."""
         return system

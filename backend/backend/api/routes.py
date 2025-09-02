@@ -1,11 +1,13 @@
+from io import BytesIO
 import traceback
-from typing import Optional
 
-from backend.services import execution_service
-from backend.services.execution_service import ExecutionService
+from fastapi.responses import FileResponse, StreamingResponse
+
 from backend.core.settings import settings
+from backend.services.execution_service import ExecutionService, execution_service
 from backend.services.csv_service import CSVService, csv_service
 from backend.services.llm_service import LLMService, llm_service
+from backend.core.cache_db import cache_db
 from fastapi import APIRouter, Depends, File, HTTPException, Query, status, UploadFile
 
 from backend.core.logging import log_error, log_request, setup_logging
@@ -47,6 +49,9 @@ async def upload(
 ):
     log_request(f"POST /upload - filename: {file.filename}, size: {file.size}")
 
+    log.info('Starting status object info into redis cache db')
+    
+
     try:
         if not file.filename or not file.filename.endswith(".csv"):
             raise ValueError("File must be an valid csv file")
@@ -55,13 +60,15 @@ async def upload(
             raise ValueError("File is to large (max: 10MB)")
 
         file_info = await csv_service.save_uploaded_file(file)
+        
+        cache_db.initialize_hash(file_info.file_id)
         log.info(f"File {file.filename} salved successfully: {file_info.file_id}")
+        cache_db.update_status(file_info.file_id, "uploaded", True)
+        log.info("File status updated into redis cache db")
 
         return UploadResponseSchema(
             filename=f"file: {file.filename} - id: {file_info.file_id}",
             file_id=file_info.file_id,
-            status=True,
-            message="FILE WAS UPLOADED SUCCESSFULLY",
         )
 
     except ValueError as e:
@@ -84,9 +91,8 @@ async def process(
     csv_service: CSVService = Depends(get_csv_service),
     llm_service: LLMService = Depends(get_llm_service),
 ):
-
+    
     log_request(f"POST /process - file: {file_id}")
-
     try:
         if not csv_service.file_exists(file_id=file_id):
             raise HTTPException(
@@ -128,6 +134,9 @@ async def process(
         system = llm_service.get_system_prompt()
         script = llm_service.send_gen_request(system_instruction=system, content=prompt)
         await csv_service.save_script(file_id=file_id, script=script)
+        
+        log.info(f'Redis cachedb updated - Processed by LLM: {file_id}')
+        cache_db.update_status(file_id, "processed_by_llm", True)
         return ProcessResponseSchema(
             file_id=file_id,
             message="Data Transformation was succesfully generated",
@@ -160,39 +169,37 @@ async def execute_script(
     csv_service: CSVService = Depends(get_csv_service),
     execution_service: ExecutionService = Depends(get_execution_service),
 ):
-    """Executa o script gerado pela LLM nos dados"""
     log_request(f"POST /execute: {file_id}")
 
     try:
-        # Verificar se arquivo e script existem
         if not csv_service.file_exists(file_id):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Arquivo não encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
 
         script = await csv_service.get_script(file_id)
         if not script:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Script não encontrado. Execute /process primeiro.",
+                detail="Script not found. Execute /process first.",
             )
 
-        # Carregar dados originais
         original_df = await csv_service.get_original_dataframe(file_id)
-
-        # Executar script
+        print(original_df.head())
         result = await execution_service.execute_script(script, original_df)
 
         if not result.success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Erro na execução do script: {result.error_message}",
+                detail=f"Error when trying to execute script: {result.error_message}",
             )
 
-        # Salvar dados processados
         await csv_service.save_processed_data(file_id, result.processed_dataframe)
 
-        log.info(f"Script executado com sucesso para file_id: {file_id}")
+        log.info(f"Script successfully executed into file_id: {file_id}")
+
+        log.info(f'Redis cachedb updated - Script executed: {file_id}')
+        cache_db.update_status(file_id, "script_executed", True)
 
         return ExecuteResponseSchema(
             file_id=file_id,
@@ -214,14 +221,12 @@ async def execute_script(
 
 
 @router.get(
-    "/result/{file_id}",
-    response_model=ResultResponseSchema,
+    "/download/{file_id}",
     responses={
         404: {"model": ErrorResponseSchema},
     },
 )
-async def get_result(file_id: str, csv_service: CSVService = Depends(get_csv_service)):
-    """Obtém o resultado final do processamento"""
+async def download(file_id: str, csv_service: CSVService = Depends(get_csv_service)):
     log_request(f"GET /result - file: {file_id}")
 
     try:
@@ -231,8 +236,59 @@ async def get_result(file_id: str, csv_service: CSVService = Depends(get_csv_ser
                 detail="Arquivo processado não encontrado. Execute /execute primeiro.",
             )
 
-        processed_data = await csv_service.get_processed_data(file_id)
+        processed_path = csv_service.processed_dir / f"{file_id}_processed.csv"
+        print("File status updated into redis cache db - ready: True")
+        print('file path: ' + str(processed_path))
+        
 
+        cache_db.update_status(file_id, "ready", True)
+        print(f'File status updated into redis cachedb - {cache_db.get_status(file_id)}')
+        # cache_db.delete_status()
+        return FileResponse(
+            path=str(processed_path),
+            media_type='text/csv',
+            filename=f"{file_id}_report_processed.csv",
+        )
+        # return ResultResponseSchema(
+        #     file_id=file_id,
+        #     message="Dados processados obtidos com sucesso",
+        #     data=processed_data.data,
+        #     columns=processed_data.columns,
+        #     rows_count=processed_data.rows_count,
+        # )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Error getting result for file {file_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Eror to get result",
+        )
+
+@router.get(
+    "/result/{file_id}",
+    responses={
+        404: {"model": ErrorResponseSchema},
+    },
+)
+async def get_result(file_id: str, csv_service: CSVService = Depends(get_csv_service)):
+    log_request(f"GET /result - file: {file_id}")
+
+    try:
+        if not csv_service.processed_file_exists(file_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Arquivo processado não encontrado. Execute /execute primeiro.",
+            )
+
+        processed_path = csv_service.processed_dir / f"{file_id}_processed.csv"
+        processed_data = await csv_service.get_processed_data(file_id)
+        print("File status updated into redis cache db - ready: True")
+        print('file path: ' + str(processed_path))
+        
+
+        cache_db.update_status(file_id, "ready", True)
         return ResultResponseSchema(
             file_id=file_id,
             message="Dados processados obtidos com sucesso",
@@ -247,32 +303,27 @@ async def get_result(file_id: str, csv_service: CSVService = Depends(get_csv_ser
         log.error(f"Error getting result for file {file_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao obter resultado",
+            detail="Eror to get result",
         )
 
 
+@router.get('/clean/{file_id}')
+async def clean(file_id: str):
+    print(f'File status updated into redis cachedb - {cache_db.get_status(file_id)}')
+    cache_db.delete_status(file_id)
+
 @router.get("/status/{file_id}", responses={404: {"model": ErrorResponseSchema}})
 async def get_status(file_id: str, csv_service: CSVService = Depends(get_csv_service)):
-    """Verifica o status do processamento de um arquivo"""
     log_request(f"GET /status - file: {file_id}")
 
     try:
         has_original = csv_service.file_exists(file_id)
-        has_script = await csv_service.get_script(file_id) is not None
-        has_processed = csv_service.processed_file_exists(file_id)
+        status_info = cache_db.get_status(file_id)
 
-        if not has_original:
+        if not has_original or not status_info:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Arquivo não encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
-
-        status_info = {
-            "file_id": file_id,
-            "uploaded": has_original,
-            "processed_by_llm": has_script,
-            "script_executed": has_processed,
-            "ready": has_processed,
-        }
 
         return status_info
 
@@ -282,5 +333,30 @@ async def get_status(file_id: str, csv_service: CSVService = Depends(get_csv_ser
         log.error(f"Error getting status for file {file_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao obter status",
+            detail="Error retrieving status",
+        )
+
+
+@router.get("/script/{file_id}", responses={404: {"model": ErrorResponseSchema}})
+async def get_script(file_id: str, csv_service: CSVService = Depends(get_csv_service)):
+    try:
+        script = await csv_service.get_script(file_id)
+        if not script:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Script not found for this file_id",
+            )
+        file_stream = BytesIO(script.encode('utf-8'))
+        return StreamingResponse(
+            file_stream,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f"attachment; filename={file_id}_script.py"},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Error getting script for file {file_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error retrieving script",
         )

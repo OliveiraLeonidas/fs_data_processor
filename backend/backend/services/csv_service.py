@@ -13,7 +13,6 @@ from backend.models.schemas import (
 import pandas as pd
 
 from fastapi import UploadFile
-from fastapi.responses import JSONResponse
 
 log = setup_logging("CSVService.py")
 
@@ -61,6 +60,17 @@ class CSVService:
     def file_exists(self, file_id: str) -> bool:
         file_path = self.upload_dir / f"{file_id}.csv"
         return file_path.exists()
+
+    def script_exists(self, file_id: str) -> bool:
+        file_path = self.upload_dir / f'{file_id}_script.py' 
+        log.info(f"starting to search File: {file_id}")
+        try:
+            if (file_path): 
+                log.info(f'File has been processed by LLM')
+                return True
+        except Exception as ex:
+            log.error(ex, f"File ID {file_id} was not found")
+            raise
 
     def processed_file_exists(self, file_id: str) -> bool:
         file_path = self.processed_dir / f"{file_id}_processed.csv"
@@ -123,7 +133,7 @@ class CSVService:
 
             if not script_path.exists():
                 return None
-
+            
             async with aiofiles.open(script_path, "r", encoding="utf-8") as f:
                 script = await f.read()
 
@@ -138,7 +148,7 @@ class CSVService:
             processed_path = self.processed_dir / f"{file_id}_processed.csv"
 
             await asyncio.get_event_loop().run_in_executor(
-                None, df.to_csv, str(processed_path), False  # index=False
+                None, lambda: df.to_csv(str(processed_path), index=False, sep=';')
             )
 
             log.info(f"Dados processados salvos: {processed_path}")
@@ -155,7 +165,7 @@ class CSVService:
                 raise FileNotFoundError(f"File processed {file_id} was not found")
 
             df = await asyncio.get_event_loop().run_in_executor(
-                None, pd.read_csv, str(processed_path)
+                None, lambda: pd.read_csv(str(processed_path), sep=';')
             )
 
             data = df.fillna("").to_dict("records")
