@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Download, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from "react";
+import { Download, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,24 +9,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ResultResponse } from '@/types';
-import { truncateText } from '@/lib/utils';
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ResultResponse } from "@/types";
+import { truncateText } from "@/lib/utils";
 
 interface ResultsTableProps {
   result: ResultResponse | null | undefined;
-  downloadFile: () => void
+  downloadFile: () => void;
 }
 
 export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
 
   if (!result) {
-    return 
+    return;
   }
 
   const filteredData = result.data.filter((row) =>
@@ -37,7 +37,10 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedData = filteredData.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
@@ -52,7 +55,8 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
               Dados Processados
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              {result.rows_count.toLocaleString()} linhas • {result.columns.length} colunas
+              {result.rows_count.toLocaleString()} linhas •{" "}
+              {result.columns.length} colunas
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -64,12 +68,16 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1); 
+                  setCurrentPage(1);
                 }}
                 className="pl-8 pr-4 py-2 text-sm border border-input rounded-md bg-background text-slate-800 dark:text-slate-200 placeholder:text-muted-foreground"
               />
             </div>
-            <Button className='bg-primary cursor-pointer' onClick={downloadFile} size="sm">
+            <Button
+              className="bg-primary cursor-pointer"
+              onClick={downloadFile}
+              size="sm"
+            >
               <Download className="h-4 w-4" />
               Download
             </Button>
@@ -83,7 +91,10 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
               <TableHeader>
                 <TableRow>
                   {result.columns.map((column) => (
-                    <TableHead key={column} className="font-semibold text-slate-700 dark:text-slate-300">
+                    <TableHead
+                      key={column}
+                      className="font-semibold text-slate-700 dark:text-slate-300"
+                    >
                       {column}
                     </TableHead>
                   ))}
@@ -95,11 +106,11 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                     <TableRow key={startIndex + index}>
                       {result.columns.map((column) => (
                         <TableCell key={column} className="max-w-xs">
-                          <span 
-                            title={String(row[column] || '')}
+                          <span
+                            title={String(row[column] || "")}
                             className="text-slate-800 dark:text-slate-200"
                           >
-                            {truncateText(String(row[column] || ''), 50)}
+                            {truncateText(String(row[column] || ""), 50)}
                           </span>
                         </TableCell>
                       ))}
@@ -107,11 +118,13 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell 
-                      colSpan={result.columns.length} 
+                    <TableCell
+                      colSpan={result.columns.length}
                       className="text-center py-8 text-muted-foreground"
                     >
-                      {searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum dado disponível'}
+                      {searchTerm
+                        ? "Nenhum resultado encontrado"
+                        : "Nenhum dado disponível"}
                     </TableCell>
                   </TableRow>
                 )}
@@ -122,10 +135,12 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
           {totalPages > 1 && (
             <div className="flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Mostrando {startIndex + 1} até {Math.min(startIndex + itemsPerPage, filteredData.length)} de {filteredData.length} resultados
+                Mostrando {startIndex + 1} até{" "}
+                {Math.min(startIndex + itemsPerPage, filteredData.length)} de{" "}
+                {filteredData.length} resultados
                 {searchTerm && ` (filtrado de ${result.rows_count} total)`}
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -136,7 +151,7 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                   <ChevronLeft className="h-4 w-4" />
                   Anterior
                 </Button>
-                
+
                 <div className="flex items-center space-x-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -149,11 +164,13 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <Button
                         key={pageNum}
-                        variant={currentPage === pageNum ? "default" : "outline"}
+                        variant={
+                          currentPage === pageNum ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => goToPage(pageNum)}
                         className="w-8 h-8 p-0"
@@ -163,7 +180,7 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                     );
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
