@@ -43,7 +43,7 @@ graph TB
     
     E --> I[Safe Python Executor]
     
-    style A fill:#61dafb
+    style A fill:#009688
     style B fill:#009688
     style C fill:#4285f4
     style F fill:#dc382d
