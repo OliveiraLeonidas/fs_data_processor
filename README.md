@@ -338,7 +338,6 @@ docker-compose logs -f backend
 - **Backend**: Follow PEP 8, use type hints
 - **Frontend**: Prettier + ESLint configurado
 - **Commits**: Conventional Commits format
-- **Testes**: Cobertura mínima de 80%
 
 ### 🐛 Reportar Bugs
 
