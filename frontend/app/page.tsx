@@ -8,14 +8,12 @@ import { Separator } from "@/components/ui/separator";
 import { apiClient } from "@/lib/api";
 import { ResultResponse, StatusProcess, UploadResponse } from "@/types";
 import { Bot, FileText } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const [uploadResponse, setUploadResponse] = useState<UploadResponse>();
   const [statusProcess, setStatusProcess] = useState<StatusProcess | null>(
@@ -155,15 +153,6 @@ export default function Home() {
     window.URL.revokeObjectURL(url);
   };
 
-  const cleanPage = () => {
-    setFile(null);
-    setResult(null);
-    setStatusProcess(null);
-    setError(null);
-    setIsLoading(false);
-    setStatusLoading(false);
-    router.refresh();
-  };
   return (
     <>
       <Header />

@@ -143,6 +143,7 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
 
               <div className="flex items-center space-x-2">
                 <Button
+                  className="cursor-pointer"
                   variant="outline"
                   size="sm"
                   onClick={() => goToPage(currentPage - 1)}
@@ -173,7 +174,7 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                         }
                         size="sm"
                         onClick={() => goToPage(pageNum)}
-                        className="w-8 h-8 p-0"
+                        className="w-8 h-8 p-0 cursor-pointer"
                       >
                         {pageNum}
                       </Button>
@@ -182,6 +183,7 @@ export function ResultsTable({ result, downloadFile }: ResultsTableProps) {
                 </div>
 
                 <Button
+                  className="cursor-pointer"
                   variant="outline"
                   size="sm"
                   onClick={() => goToPage(currentPage + 1)}
