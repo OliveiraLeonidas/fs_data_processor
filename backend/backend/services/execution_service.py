@@ -6,16 +6,8 @@ import pandas as pd
 import numpy as np
 import re
 import datetime
-from dataclasses import dataclass
 
-
-@dataclass
-class ExecutionResultSchema:
-    success: bool
-    processed_dataframe: pd.DataFrame = None
-    output: str = ""
-    error_message: str = ""
-    processed_rows: int = 0
+from backend.models.schemas import ExecutionResultSchema
 
 
 class ExecutionService:
@@ -83,7 +75,6 @@ class ExecutionService:
         try:
             if not self.validate_script(script):
                 return ExecutionResultSchema(
-                    success=False, 
                     error_message="Script did not pass validation"
                 )
 
@@ -101,14 +92,12 @@ class ExecutionService:
                 
                 if "df" not in safe_env:
                     return ExecutionResultSchema(
-                        success=False,
                         error_message="Script have not return valid DataFrame"
                     )
                 
                 processed_df = safe_env["df"]
                 
                 return ExecutionResultSchema(
-                    success=True,
                     processed_dataframe=processed_df,
                     output=output or "Script executed without output",
                     processed_rows=len(processed_df)

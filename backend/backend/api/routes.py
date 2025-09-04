@@ -99,7 +99,7 @@ async def process(
                 status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             )
         data_summary = await csv_service.get_data_summary(file_id)
-        print(data_summary)
+
         prompt = f"""
                     Analise os dados CSV abaixo e gere um script Python para limpeza:
 
@@ -124,8 +124,11 @@ async def process(
                     1. Trate valores nulos de forma inteligente
                     2. Remova duplicatas se necessário
                     3. Corrija tipos de dados
-                    4. Padronize formatação (datas, emails, etc.)
+                    4. Padronize formatação (datas, emails, nomes, etc.)
                     5. Remova linhas/colunas inválidas se necessário
+                    6. caso existe colunas com sequências numéricas, verifique se existem gaps e tente preenchê-los
+                    7. se uma sequencia de datas estiver incompleta, tente preenchê-la
+                    
 
                     O script deve modificar o DataFrame 'df' in-place ou reatribuí-lo.
                     """
@@ -195,7 +198,6 @@ async def execute_script(
             )
 
         await csv_service.save_processed_data(file_id, result.processed_dataframe)
-
         log.info(f"Script successfully executed into file_id: {file_id}")
 
         log.info(f'Redis cachedb updated - Script executed: {file_id}')
@@ -216,7 +218,7 @@ async def execute_script(
         log.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao executar script",
+            detail="Error when trying to execute script",
         )
 
 
@@ -249,13 +251,6 @@ async def download(file_id: str, csv_service: CSVService = Depends(get_csv_servi
             media_type='text/csv',
             filename=f"{file_id}_report_processed.csv",
         )
-        # return ResultResponseSchema(
-        #     file_id=file_id,
-        #     message="Dados processados obtidos com sucesso",
-        #     data=processed_data.data,
-        #     columns=processed_data.columns,
-        #     rows_count=processed_data.rows_count,
-        # )
 
     except HTTPException:
         raise

@@ -1,21 +1,18 @@
 from typing import Any, Optional
 from fastapi import UploadFile
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel
+import pandas as pd
 
 class BaseResponseSchema(BaseModel):
     message: str
     file_id: str
 
-
 class UploadRequestSchema(BaseModel):
     file: UploadFile
-
 
 class UploadResponseSchema(BaseModel):
     filename: str
     file_id: Optional[str] = None
-
 
 class FileInfoSchema(BaseModel):
     file_id: str
@@ -25,10 +22,8 @@ class FileInfoSchema(BaseModel):
     count_columns: int
     columns: list[str]
 
-
 class ErrorResponseSchema(BaseModel):
     message: str
-
 
 class DataSummarySchema(BaseModel):
     filename: str
@@ -41,22 +36,17 @@ class DataSummarySchema(BaseModel):
     duplicate_rows: int
     memory_usage: str
 
-
 class ProcessResponseSchema(BaseResponseSchema):
     script: str
     data_summary: dict[str, Any]
 
-
 class ExecutionResultSchema(BaseModel):
-    success: bool
-    output: Optional[str] = None
-    error_message: Optional[str] = None
-    processed_rows: Optional[int] = None
-    processed_dataframe: Optional[Any] = None
-
+    processed_dataframe: pd.DataFrame = None
+    output: str = ""
+    error_message: str = ""
+    processed_rows: int = 0
     class Config:
         arbitrary_types_allowed = True
-
 
 class ExecuteResponseSchema(BaseResponseSchema):
     execution_success: bool
@@ -64,33 +54,12 @@ class ExecuteResponseSchema(BaseResponseSchema):
     error_message: Optional[str] = None
     processed_rows: Optional[int] = None
 
-
 class ProcessedDataSchema(BaseModel):
     columns: list[str]
     data: list[dict[str, Any]]
     rows_count: int
 
-
 class ResultResponseSchema(BaseResponseSchema):
     data: list[dict[str, Any]]
     columns: list[str]
     rows_count: int
-
-
-class LLMRequestSchema(BaseModel):
-    data_summary: DataSummarySchema
-
-
-class LLMTestRequest(BaseModel):
-    content: str
-
-
-class LLMResponseSchema(BaseModel):
-    script: str = Field(..., description="Python script generated")
-    reasoning: Optional[str] = Field(None, description="Script details")
-
-
-class ValidationErrorSchema(BaseModel):
-    field: str
-    message: str
-    value: Optional[Any] = None

@@ -1,15 +1,14 @@
 from pathlib import Path
-from typing import Any
 from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 from backend.core.logging import setup_logging
 
 log = setup_logging("backend.llm_service")
-
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Data Processor - Cleaning CSV Data with LLM"
+
     
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     UPLOAD_DIR: str = "uploads"
@@ -18,12 +17,11 @@ class Settings(BaseSettings):
     OPENAI_SECRET_KEY: str
     OPENAI_MODEL: str = "gpt-3.5-turbo"
     OPENAI_MAX_TOKENS: int = 2000
-    OPENAI_TEMPERATURE: float = 0.1
     
     GEMINI_SECRET_KEY: str
     GEMINI_BASE_MODEL: str = "gemini-2.5-flash"
+    GEMINI_PRO_MODEL: str = "gemini-2.5-pro"
     GEMINI_MAX_TOKENS: int = 2000
-    GEMINI_TEMPERATURE: float = 0.1
     
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
@@ -43,8 +41,6 @@ class Settings(BaseSettings):
     EXECUTION_TIMEOUT: int = 30  # segundos
     MAX_SCRIPT_LENGTH: int = 10000  # caracteres
 
-
-
     @model_validator(mode='after')
     def setup_directories(self) -> 'Settings':
         log.info(f"Setting directories on base dir: {self.BASE_DIR}")
@@ -56,10 +52,17 @@ class Settings(BaseSettings):
         log.info(f"Base settings done")
         
         return self
-
-
+    
+    @model_validator(mode="after")
+    def validate_environment(self) -> 'Settings':
+        missing = [field for field, value in self.__dict__.items() if value in (None, '')]
+        if missing:
+            raise ValueError(f"Missing environment variables: {', '.join(missing)}")
+        
+        return self
 
     class Config:
+        # env_file = Path(__file__).resolve().parent.parent / ".docker" / ".env"
         env_file = ".env"
         case_sensitive = True
 
