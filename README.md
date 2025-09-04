@@ -31,6 +31,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 ## 🏗️ Arquitetura
 
 ```bash
+    .docker/
     frontend/
     backend/
     ├── upload/
@@ -45,6 +46,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
     ├── services/
     │   ├── csv_service.py
     │   ├── llm_service.py
+    │   ├── execution_service.py
     └── main.py
 ```
 
@@ -83,7 +85,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 A execução pode ser feita tanto com `python` ou `python3`
 
 ```bash
-    bash runs.sh --run
+    bash run.sh --run
 ```
 
 A API estará disponível em `http://localhost:8000/docs`
