@@ -1,18 +1,4 @@
 services:
-  db:
-    image: postgres:14.2-alpine
-    container_name: ${DATAPROCESSOR_POSTGRES_HOST}
-    command: -p ${DATAPROCESSOR_POSTGRES_PORT}
-    env_file:
-      - .docker/.env
-    environment:
-      POSTGRES_ROOT_PASSWORD: "${DATAPROCESSOR_POSTGRES_ROOT_PASSWORD}"
-      POSTGRES_DB: "${DATAPROCESSOR_POSTGRES_DB}"
-      POSTGRES_USER: "${DATAPROCESSOR_POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${DATAPROCESSOR_POSTGRES_PASSWORD}"
-    volumes:
-      - data-db:/var/lib/postgresql/data
-
   redis:
     image: redis
     container_name: cachedb
@@ -23,20 +9,35 @@ services:
   backend:
     image: data_processor_backend
     container_name: backend
-    command: wait-for-it -t 60 ${DATAPROCESSOR_POSTGRES_HOST}:${DATAPROCESSOR_POSTGRES_PORT} -- fastapi dev --port ${DATAPROCESSOR_BACKEND_PORT} --host ${DATAPROCESSOR_BACKEND_HOST} backend/main.py
+    command: fastapi dev --port ${DATAPROCESSOR_BACKEND_PORT} --host ${DATAPROCESSOR_BACKEND_HOST} backend/main.py
     restart: unless-stopped
     ports:
       - "${DATAPROCESSOR_BACKEND_PORT}:${DATAPROCESSOR_BACKEND_PORT}"
     tty: true
+    depends_on:
+      - redis
+    volumes:
+      - ./backend/:/code
     deploy:
       resources:
         limits:
-          memory: 16G
+          memory: 4G
+
+  ui:
+    image: data_processor_frontend
+    container_name: frontend
+    command: npm run dev
+    restart: unless-stopped
+    ports:
+      - "${DATAPROCESSOR_FRONTEND_PORT}:${DATAPROCESSOR_FRONTEND_PORT}"
+    environment:
+      - PORT=${DATAPROCESSOR_FRONTEND_PORT}
+    tty: true
+    depends_on:
+      - backend
+
     env_file:
       - .docker/.env
-    volumes:
-      - ./backend/:/code
 
 volumes:
   redis-cache_data:
-  data-db:

@@ -71,7 +71,7 @@ Este projeto é uma aplicação web fullstack desenvolvida como parte de uma ava
 
 ```bash
     cd backend && cp .env.example .env
-    # Edite .env e adicione sua GEMINI_SECRET_KEY
+    # Edite .env e adicione sua GEMINI_SECRET_KEY e OPENAI_SECRET_KEY
 ```
 
 3. **Prepare as imagens docker**
@@ -113,6 +113,12 @@ file: arquivo.csv
     POST /api/v1/execute?file_id={file_id}
 ```
 
+### Download do arquivo CSV
+
+```http
+    GET /api/v1/download/{file_id}
+```
+
 ### Obter Resultado
 
 ```http
@@ -121,10 +127,16 @@ file: arquivo.csv
 
 ## 🔧 Desenvolvimento
 
-### Comandos Disponíveis
+### Comandos Disponíveis Backend
 
 ```bash
     python3 -m fastapi dev backend/main.py
+```
+
+### Comandos Disponíveis Frontend
+
+```bash
+    npm run start
 ```
 
 ## 🔒 Segurança

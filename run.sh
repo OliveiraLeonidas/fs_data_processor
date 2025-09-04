@@ -27,9 +27,16 @@ if [ "$1" == "--build" ]; then
     eval $(cat .docker/.env) docker compose -f docker-compose.yml down
     handle_error $? "Error during the halt of the application"
 
-    echo -e "\n\tBuild the backend of Data Processor\n"
-    docker build -t data_processor_backend -f .docker/Dockerfile . $cache_flag
-    handle_error $? "Error during the build of Data Processor's backend"
+    echo -e "\n\tBuilding the frontend of Data Processor\n"
+    docker build \
+    --build-arg HTTP_PROXY=$HTTP_PROXY \
+    --build-arg HTTPS_PROXY=$HTTPS_PROXY \
+    --build-arg NO_PROXY=$NO_PROXY \
+    -t data_processor_frontend -f .docker/Dockerfile.ui . $cache_flag
+    handle_error $? "Error during the build of Data Processor's frontend"
+
+    echo -e "\n\tBuilding the backend of Data Processor\n"
+    docker build -t data_processor_backend -f .docker/Dockerfile.api . $cache_flag
 
     exit 0
 fi
