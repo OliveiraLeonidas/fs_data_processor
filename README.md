@@ -135,7 +135,12 @@ fs_data_processor/
    chmod +x run.sh
    ./run.sh --build         # Build para desenvolvimento
    ./run.sh --run           # Executar aplicação
+
    ```
+4. **Corrigir chaves LLM**
+   ```bash
+   chmod +x run.sh
+   ./run.sh --reconfigure   # Refaz o arquivo de variáveis de ambiente
 
 ### 🌐 Acesso
 
