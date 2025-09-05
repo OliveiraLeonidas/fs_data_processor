@@ -15,6 +15,8 @@
 backend/venv/
 backend/.venv/
 backend/env/
+backend/backend/processed/**
+backend/backend/upload/**
 
 # Arquivos de Cache do Python
 backend/**/__pycache__/

@@ -60,9 +60,9 @@ async def upload(
             raise ValueError("File is to large (max: 10MB)")
 
         file_info = await csv_service.save_uploaded_file(file)
-        
-        cache_db.initialize_hash(file_info.file_id)
         log.info(f"File {file.filename} salved successfully: {file_info.file_id}")
+
+        cache_db.initialize_hash(file_info.file_id)
         cache_db.update_status(file_info.file_id, "uploaded", True)
         log.info("File status updated into redis cache db")
 
@@ -133,9 +133,13 @@ async def process(
                     O script deve modificar o DataFrame 'df' in-place ou reatribuí-lo.
                     """
 
-        llm_service.initialize_gemini()
+        # llm_service.initialize_gemini()
+        # system = llm_service.get_system_prompt()
+        # script = llm_service.send_gen_request(system_instruction=system, content=prompt)
+
+        llm_service.initialize_openai()
         system = llm_service.get_system_prompt()
-        script = llm_service.send_gen_request(system_instruction=system, content=prompt)
+        script = llm_service.send_openai_request(system_instruction=system, content=prompt)
         await csv_service.save_script(file_id=file_id, script=script)
         
         log.info(f'Redis cachedb updated - Processed by LLM: {file_id}')
@@ -191,7 +195,7 @@ async def execute_script(
         print(original_df.head())
         result = await execution_service.execute_script(script, original_df)
 
-        if not result.success:
+        if not result:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Error when trying to execute script: {result.error_message}",

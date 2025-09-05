@@ -106,13 +106,11 @@ class ExecutionService:
             except Exception as e:
                 sys.stdout = old_output
                 return ExecutionResultSchema(
-                    success=False, 
                     error_message=f"Execution error: {str(e)}"
                 )
                 
         except Exception as e:
             return ExecutionResultSchema(
-                success=False, 
                 error_message=f"General error: {str(e)}"
             )
 

@@ -62,7 +62,9 @@ class Settings(BaseSettings):
         return self
 
     class Config:
-        # env_file = Path(__file__).resolve().parent.parent / ".docker" / ".env"
+        # env_file = Path(__file__).resolve().parent.parent.parent / ".env"
+        # print("================================ PATH =====================================")
+        # print(env_file)
         env_file = ".env"
         case_sensitive = True
 

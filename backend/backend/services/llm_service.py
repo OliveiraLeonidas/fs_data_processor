@@ -89,10 +89,20 @@ class LLMService:
     def send_openai_request(self, system_instruction: str, content: str): 
         log_request("Request Gemini API - Generate Content")
         response = self.openai_client.responses.create(
-            model="gpt-5",
-            reasoning={"effort": "medium"},
-            instructions=system_instruction,
-            input=content
+            model="gpt-4.1",
+            # reasoning={"effort": "minimal"}, # disponível apenas nas series o como gpt-o3.5
+            # instructions=system_instruction,
+            temperature=0,
+            input= [
+                {
+                "role": "developer",
+                "content": system_instruction
+                },
+                {
+                    "role": "assistant",
+                    "content": content
+                }
+            ],
         )
         if not response:
             log.error("Missing response data")
@@ -123,7 +133,11 @@ class LLMService:
                 10. Foque em problemas comuns: valores nulos, duplicatas, tipos de dados incorretos, formatação
                 11. Foque na eficiência - evite loops desnecessários
 
-                Retorne APENAS o código Python, sem explicações adicionais antes ou depois."""
+                REGRAS DE SAÍDA
+                - Responda SOMENTE com o script Python puro.
+                - Não use markdown, não use ```python, não explique nada.
+
+                """
         return system
 
 
